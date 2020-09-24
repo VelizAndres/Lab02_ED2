@@ -3,11 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API_LAB02", "API_LAB02\API_LAB02.csproj", "{D44B3EFC-CBC8-4904-B950-22CF61B1CF75}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API_LAB02", "API_LAB02\API_LAB02.csproj", "{D44B3EFC-CBC8-4904-B950-22CF61B1CF75}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Laboratorio2_ED2", "Laboratorio2_ED2\Laboratorio2_ED2.csproj", "{61748CA3-1BDA-4D03-BDC3-BEAA7B8E159E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Laboratorio2_ED2", "Laboratorio2_ED2\Laboratorio2_ED2.csproj", "{61748CA3-1BDA-4D03-BDC3-BEAA7B8E159E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab02_ConsoleApp", "Lab02_ConsoleApp\Lab02_ConsoleApp.csproj", "{1D6FECD0-995B-457A-A314-FE37AB826CE5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lab02_ConsoleApp", "Lab02_ConsoleApp\Lab02_ConsoleApp.csproj", "{1D6FECD0-995B-457A-A314-FE37AB826CE5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{61748CA3-1BDA-4D03-BDC3-BEAA7B8E159E} = {61748CA3-1BDA-4D03-BDC3-BEAA7B8E159E}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
