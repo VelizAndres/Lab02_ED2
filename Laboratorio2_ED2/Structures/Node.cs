@@ -6,7 +6,6 @@ namespace Laboratorio2_ED2
     {
         //Valores Auxiliares
         public static int m;
-        private int usedSpace = 0;
         public int[] tamData;
         public int TamVal;
         //    public int capacityLeft;
@@ -16,18 +15,24 @@ namespace Laboratorio2_ED2
         public T[] Valores;
         public int ParentNode;
         public int[] Children;
+        public int usedSpace = 0;
+        public int CantHijos;
 
 
-        public Node(){ }
-        public Node(T value, int grado, int SizeVal)
+        public Node() 
         {
+          
+           
+        }
+       public Node(T value, int grado, int SizeVal, int identi)
+        {
+            id = identi;
             m = grado;
             Children = new int[m];
             Valores = new T[m - 1];
-         //   capacityLeft = m - 1;
-        //    capacityLeft--;
             usedSpace++;
             Valores[0] = value;
+            TamVal = SizeVal;
             tamData = new int[4] { 11, 11, 11*m, (SizeVal+1)*(m-1)};
         }
 
@@ -36,7 +41,7 @@ namespace Laboratorio2_ED2
             //            Valores[m - capacityLeft - 1] = value;
             Valores[usedSpace] = value;
           //  capacityLeft--;
-            usedSpace++;
+          //  usedSpace++;
             SortValuesWithinNode();
         }
 
@@ -78,10 +83,13 @@ namespace Laboratorio2_ED2
             campos += texthijos + textvalores;
             return campos;
         }
-        
 
-        public Node<T> GetText(string data,Delegate Convert)
+
+        public void GetValues(string data, int grado, int SizeVal, Delegate Convert)
         {
+            TamVal = SizeVal;
+            m = grado;
+            tamData = new int[4] { 11, 11, 11 * m, (SizeVal + 1) * (m - 1) };
             string[] contenedor = data.Split("|");
             string[] aux = new string[4];
             int pos = 0;
@@ -93,33 +101,26 @@ namespace Laboratorio2_ED2
                     aux[i] += "|" + contenedor[pos];
                 }
             }
-            Node<T> nodito = new Node<T>() { id = int.Parse(aux[0]), ParentNode = int.Parse(aux[1])};
+            id = int.Parse(aux[0]);
+            ParentNode = int.Parse(aux[1]);
             //Add Hijos
             string[] hijos = aux[2].Split("/");
             for(int j=0;j<m;j++)
             {
-                nodito.Children[j] = int.Parse(hijos[j]);
+                if (hijos[j] != "") { CantHijos++; };
+                Children[j] = int.Parse(hijos[j]);
             }
             //Add Values
             string[] aux_val = aux[3].Split("/");
+            int CapacityLef = m-1;
             for (int k = 0; k < m; k++)
             {
-                nodito.Valores[k] = (T)Convert.DynamicInvoke(aux_val[k].Trim());
+                if (aux_val[k].Trim() == "") { CapacityLef--; }
+                Valores[k] = (T)Convert.DynamicInvoke(aux_val[k].Trim());
             }
-            return  nodito; 
+            usedSpace = (m - 1) - CapacityLef;
         }
-
-
-        public void SpaceUsed()
-        {
-            for (int i = 0; i < m - 1; i++)
-            {
-                if (Valores[i] != T.)
-                {
-                    usedSpace++;
-                }
-            }
-        }
+     
 
     }
 }

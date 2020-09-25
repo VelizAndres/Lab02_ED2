@@ -11,7 +11,7 @@ namespace Laboratorio2_ED2
     {
         public Delegate Conversor;
 
-        private int m;
+        private int grado;
         private int root;
         private int next;
         private int[] data;
@@ -19,30 +19,23 @@ namespace Laboratorio2_ED2
         private int SizeValores;
         public int SizeNode;
 
-        /*    public void SetM(int val,int ValoresTam)
-            {
-                m = val;
-                SizeValores = ValoresTam;
-             }*/
-
         //Create a File and Add Metadata
-        public void CreateData(int grado, int TamValores, Delegate Convert)
+        public void CreateData(int order, int TamValores, Delegate Convert)
         {
             //string DirectoryOfNode = Directory.GetCurrentDirectory() + "\\Data\\" + "Btree" + ".txt";
-            m = grado;
+            grado = order;
             SizeValores = TamValores;
             root = 0;
             next = 1;
             Conversor = Convert;
-            SizeNode = 25+ (11 * m) + ((SizeValores + 1) * (m - 1));
+            SizeNode = 25+ (11 * grado) + ((SizeValores + 1) * (grado - 1));
 
             DirectoryData = Directory.GetCurrentDirectory() + "\\Btree" + ".txt";
             StreamWriter Creator = new StreamWriter(DirectoryData);
             string metada = "Raiz:" + $"{root:000000;-00000}" + Environment.NewLine + "Proxima Posicion:" + $"{next:000000;-00000}" + Environment.NewLine;
-            string campos =  string.Format("{0,11}", "ID") + "|" + string.Format("{0,11}", "PADRE") + "|" + string.Format("{0," + 11 * m + "}", "HIJOS") + "|" + string.Format("{0," + TamValores * (m - 1) + "}", "VALORES") + Environment.NewLine;
+            string campos =  string.Format("{0,11}", "ID") + "|" + string.Format("{0,11}", "PADRE") + "|" + string.Format("{0," + 11 * grado + "}", "HIJOS") + "|" + string.Format("{0," + TamValores * (grado - 1) + "}", "VALORES") + Environment.NewLine;
             metada += campos;
-            int tamcamp= 42 + 27 + 11 * m + 11 * (m - 1);
-            //  data = new int[4] { 5, 30,42 ,tamcamp };
+            int tamcamp= 42 + 27 + 11 * grado + 11 * (grado - 1);
             data = new int[4] { 5, 30,42 ,tamcamp };
             Creator.WriteLine(metada);
             Creator.Close();
@@ -52,16 +45,53 @@ namespace Laboratorio2_ED2
         {
             if (root == 0)
             {
-                WriteNodeInDrive(new Node<T>(value,m,SizeValores), 1);
                 root++;
                 next++;
+                WriteNodeInDrive(new Node<T>(value,grado,SizeValores,root), root);
+                MoodRoot();
             }
             else
             {
-                Node<T> nodito = new Node<T>();
-                nodito = nodito.GetText(CreateTextNode("5"), Conversor);
+                Node<T> temp = new Node<T>();
+                temp.GetValues(GetTextNode(root),grado,SizeValores, Conversor);
             }
         }
+
+
+        private void RecorrerTreeB(Node<T> padre, T Valor,Delegate Conversor)
+        {
+            Node<T> Aux = new Node<T>();
+            Aux.GetValues(GetTextNode(padre.id), grado, SizeValores, Conversor);
+            if (Aux.CantHijos ==0 )
+            {
+                if(Aux.usedSpace<(grado - 1))
+                {
+                    Aux.InsertInNode(Valor);
+                    WriteNodeInDrive(Aux, Aux.id);
+                }
+                else
+                {
+                    //Aqui va cuando supera la cantidad maxima
+                }
+            }
+
+            else 
+                {
+                for (int i = 0; i < Aux.usedSpace; i++)
+                {
+             //       if ()
+                }
+            }
+       
+        
+        }
+
+
+
+
+
+
+
         void WriteNodeInDrive(Node<T> nodeMater, int id)
         {
             using (FileStream file = new FileStream(DirectoryData, FileMode.Open))
@@ -75,14 +105,14 @@ namespace Laboratorio2_ED2
             }
         }
 
-        public string CreateTextNode(string id)
+        public string GetTextNode(int id)
         {
             string DataNode = "";
             using (FileStream file = new FileStream(DirectoryData, FileMode.Open))
             {
                 using (StreamReader lector = new StreamReader(file))
                 {
-                    file.Seek(data[3] + (int.Parse(id)-1) * SizeNode, SeekOrigin.Begin);
+                    file.Seek(data[3] + (id-1) * SizeNode, SeekOrigin.Begin);
                     DataNode=lector.ReadLine();
                     lector.Close();
                 }
@@ -106,7 +136,6 @@ namespace Laboratorio2_ED2
 
                     escritor.WriteLine($"{root:000000;-00000}");
                     }
-        
                 file.Close();
             }
         }
@@ -144,7 +173,7 @@ namespace Laboratorio2_ED2
 
         T [] GetValuesOfNode (string id)
         {
-            T[] response = new T[m - 1];
+            T[] response = new T[grado - 1];
             string DataDirectory = Directory.GetCurrentDirectory() + "\\Data\\" + id + ".txt";
             StreamReader Reader = new StreamReader(DataDirectory);
             string rawData = Reader.ReadToEnd();
