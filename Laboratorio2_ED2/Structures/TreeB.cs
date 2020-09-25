@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
@@ -71,7 +72,55 @@ namespace Laboratorio2_ED2
                 }
                 else
                 {
+                    int posMitad = ((grado + 1) / 2) - 1;
+                    int[] PosNod = new int[2] { Aux.id, next};
+                    int[] Resguard_Hijos = new int[(grado / 2)];
+                    T[] Resguard_Valores= new T[(grado / 2)- 1];
+                    Node<T> CreateNode = new Node<T>() { id = next, ParentNode = Aux.ParentNode };
                     //Aqui va cuando supera la cantidad maxima
+                    T[] ValoresMax = new T[grado];
+                    for(int i=0;i<grado;i++)
+                    {
+                        ValoresMax[i] = Aux.Valores[i];
+                    }
+                    ValoresMax[grado - 1] = Valor;
+                    for (int i = 0; i < grado- 1; i++)
+                    {
+                        for (int j = 0; j < grado - i - 1; j++)
+                        {
+                            if (ValoresMax[j].CompareTo(ValoresMax[j + 1]) == 1)
+                            {
+                                //swap de valores dentro del nodo
+                                T temp = ValoresMax[j];
+                                ValoresMax[j] = ValoresMax[j + 1];
+                                ValoresMax[j + 1] = temp;
+                            }
+                        }
+                    }
+                    //Save Values
+                    int iterador = 0;
+                    for(int j=0;j<grado-1;j++)
+                    {
+                        if (j < posMitad) { Aux.Valores[j] = ValoresMax[j]; }
+                        else { Aux.Valores[j] = default; }
+                        if (j>posMitad)
+                        {
+                            Resguard_Valores[iterador] = ValoresMax[j];
+                            iterador++;
+                        }
+                    }
+                    //Save Children
+                    iterador = 0;
+                    for (int j = 0; j < grado; j++)
+                    {
+                        if (j > posMitad) 
+                        {
+                            Resguard_Hijos[iterador] = Aux.Children[j];
+                            iterador++;
+                            Aux.Children[j] = 0;
+                        }
+                    }
+                    T MEDIO= ValoresMax[i]
                 }
             }
 
@@ -87,7 +136,7 @@ namespace Laboratorio2_ED2
         }
 
 
-
+        public Node<T> 
 
 
 
