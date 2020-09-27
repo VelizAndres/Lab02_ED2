@@ -11,6 +11,7 @@ namespace Laboratorio2_ED2
     public class TreeB<T> where T : IComparable
     {
         public Delegate Conversor;
+        public Delegate Vacio;
 
         private int grado;
         private int root;
@@ -21,23 +22,26 @@ namespace Laboratorio2_ED2
         public int SizeNode;
 
         //Create a File and Add Metadata
-        public void CreateData(int order, int TamValores, Delegate Convert)
+        public void CreateData(int order, int TamValores, Delegate Convert, Delegate empty)
         {
             //string DirectoryOfNode = Directory.GetCurrentDirectory() + "\\Data\\" + "Btree" + ".txt";
+            Vacio = empty;
             grado = order;
             SizeValores = TamValores;
             root = 0;
             next = 1;
             Conversor = Convert;
-            SizeNode = 25+ (11 * grado) + ((SizeValores + 1) * (grado - 1));
+            SizeNode = 25 + (11 * grado) + ((SizeValores + 1) * (grado - 1))+2;
 
             DirectoryData = Directory.GetCurrentDirectory() + "\\Btree" + ".txt";
             StreamWriter Creator = new StreamWriter(DirectoryData);
             string metada = "Raiz:" + $"{root:000000;-00000}" + Environment.NewLine + "Proxima Posicion:" + $"{next:000000;-00000}" + Environment.NewLine;
-            string campos =  string.Format("{0,11}", "ID") + "|" + string.Format("{0,11}", "PADRE") + "|" + string.Format("{0," + 11 * grado + "}", "HIJOS") + "|" + string.Format("{0," + TamValores * (grado - 1) + "}", "VALORES") + Environment.NewLine;
+            string campos = string.Format("{0,11}", "ID") + "|" + string.Format("{0,11}", "PADRE") + "|" + string.Format("{0," + 11 * grado + "}", "HIJOS") + "|" + string.Format("{0," + (TamValores + 1) * (grado - 1) + "}", "VALORES") + Environment.NewLine;
             metada += campos;
-            int tamcamp= 42 + 27 + 11 * grado + 11 * (grado - 1);
-            data = new int[4] { 5, 30,42 ,tamcamp };
+            int tamcamp = 42 + 27 + 11 * grado + TamValores * (grado - 1);
+            int sepa = metada.Length;
+            int CantidadCampo = 30 + 11 + 1 + 11 + 1 + 11 * grado + (TamValores + 1) * (grado - 1);
+            data = new int[4] { 5, 30,42 , sepa};
             Creator.WriteLine(metada);
             Creator.Close();
         }
@@ -54,7 +58,8 @@ namespace Laboratorio2_ED2
             else
             {
                 Node<T> temp = new Node<T>();
-                temp.GetValues(GetTextNode(root),grado,SizeValores, Conversor);
+                temp.GetValues(GetTextNode(root),grado,SizeValores, Conversor,Vacio);
+                RecorrerTreeB(temp, value, Conversor);
             }
         }
 
@@ -62,7 +67,7 @@ namespace Laboratorio2_ED2
         private void RecorrerTreeB(Node<T> padre, T Valor,Delegate Conversor)
         {
             Node<T> Aux = new Node<T>();
-            Aux.GetValues(GetTextNode(padre.id), grado, SizeValores, Conversor);
+            Aux.GetValues(GetTextNode(padre.id), grado, SizeValores, Conversor,Vacio);
             if (Aux.CantHijos ==0 )
             {
                 if(Aux.usedSpace<(grado - 1))
@@ -72,71 +77,183 @@ namespace Laboratorio2_ED2
                 }
                 else
                 {
-                    int posMitad = ((grado + 1) / 2) - 1;
-                    int[] PosNod = new int[2] { Aux.id, next};
-                    int[] Resguard_Hijos = new int[(grado / 2)];
-                    T[] Resguard_Valores= new T[(grado / 2)- 1];
-                    Node<T> CreateNode = new Node<T>() { id = next, ParentNode = Aux.ParentNode };
-                    //Aqui va cuando supera la cantidad maxima
-                    T[] ValoresMax = new T[grado];
-                    for(int i=0;i<grado;i++)
-                    {
-                        ValoresMax[i] = Aux.Valores[i];
-                    }
-                    ValoresMax[grado - 1] = Valor;
-                    for (int i = 0; i < grado- 1; i++)
-                    {
-                        for (int j = 0; j < grado - i - 1; j++)
-                        {
-                            if (ValoresMax[j].CompareTo(ValoresMax[j + 1]) == 1)
-                            {
-                                //swap de valores dentro del nodo
-                                T temp = ValoresMax[j];
-                                ValoresMax[j] = ValoresMax[j + 1];
-                                ValoresMax[j + 1] = temp;
-                            }
-                        }
-                    }
-                    //Save Values
-                    int iterador = 0;
-                    for(int j=0;j<grado-1;j++)
-                    {
-                        if (j < posMitad) { Aux.Valores[j] = ValoresMax[j]; }
-                        else { Aux.Valores[j] = default; }
-                        if (j>posMitad)
-                        {
-                            Resguard_Valores[iterador] = ValoresMax[j];
-                            iterador++;
-                        }
-                    }
-                    //Save Children
-                    iterador = 0;
-                    for (int j = 0; j < grado; j++)
-                    {
-                        if (j > posMitad) 
-                        {
-                            Resguard_Hijos[iterador] = Aux.Children[j];
-                            iterador++;
-                            Aux.Children[j] = 0;
-                        }
-                    }
-                    T MEDIO= ValoresMax[i]
+                    NodeDiv(Aux, Valor);
+                    //int posMitad = ((grado + 1) / 2) - 1;
+                    //int[] PosNod = new int[2] { Aux.id, next };
+                    //Node<T> CreateNode = new Node<T>() { id = next, ParentNode = Aux.ParentNode, TamVal= SizeValores };
+                    //CreateNode.Valores = new T[Aux.Valores.Length];
+                    //CreateNode.Children = new int[Aux.Children.Length];
+                    ////Aqui va cuando supera la cantidad maxima
+                    //T[] ValoresMax = new T[grado];
+                    //for (int i = 0; i < grado - 1; i++)
+                    //{
+                    //    ValoresMax[i] = Aux.Valores[i];
+                    //}
+                    //ValoresMax[grado - 1] = Valor;
+                    //for (int i = 0; i < grado - 1; i++)
+                    //{
+                    //    for (int j = 0; j < grado - i - 1; j++)
+                    //    {
+                    //        if (ValoresMax[j].CompareTo(ValoresMax[j + 1]) == 1)
+                    //        {
+                    //            //swap de valores dentro del nodo
+                    //            T temp = ValoresMax[j];
+                    //            ValoresMax[j] = ValoresMax[j + 1];
+                    //            ValoresMax[j + 1] = temp;
+                    //        }
+                    //    }
+                    //}
+                    ////Save Values
+                    //int iterador = 0;
+                    //for (int j = 0; j < grado - 1; j++)
+                    //{
+                    //    if (j < posMitad + 1) { Aux.Valores[j] = ValoresMax[j]; }
+                    //    else { Aux.Valores[j] = default; }
+                    //    if (j > posMitad)
+                    //    {
+                    //        CreateNode.Valores[iterador] = ValoresMax[j + 1];
+                    //        iterador++;
+                    //    }
+                    //}
+                    ////Save Children
+                    //iterador = 0;
+                    //for (int j = 0; j < grado; j++)
+                    //{
+                    //    if (j > posMitad)
+                    //    {
+                    //        CreateNode.Children[iterador] = Aux.Children[j];
+                    //        iterador++;
+                    //        Aux.Children[j] = 0;
+                    //    }
+                    //}
+                    //T Medio = ValoresMax[grado / 2];
+
+                    //next++;
+                    //if (Aux.ParentNode==0)
+                    //{
+                    //    int idDad=CreateParent(PosNod, Medio);
+                    //    Aux.ParentNode = idDad;
+                    //    CreateNode.ParentNode = idDad;
+                    //}
+                    ////Guardar en disco el nodo actual
+                    //WriteNodeInDrive(Aux, Aux.id);
+                    //WriteNodeInDrive(CreateNode, CreateNode.id);
+                    //MoodNext();
                 }
             }
-
             else 
                 {
+                bool Accept = true;
+                Node<T> temp = new Node<T>();
                 for (int i = 0; i < Aux.usedSpace; i++)
                 {
-             //       if ()
+                   if (Valor.CompareTo(Aux.Valores[i]) == -1)
+                    {
+                        temp.GetValues(GetTextNode(Aux.Children[i]), grado, SizeValores, Conversor, Vacio);
+                        RecorrerTreeB(temp, Valor, Conversor);
+                        Accept = false;
+                    }
+                }
+                if (Accept)
+                {
+                    temp.GetValues(GetTextNode(Aux.Children[grado]), grado, SizeValores, Conversor, Vacio);
+                    RecorrerTreeB(temp, Valor, Conversor);
                 }
             }
-       
-        
         }
 
 
-        public Node<T> 
+        void NodeDiv(Node<T> Aux,T Valor)
+        {
+            int posMitad = ((grado + 1) / 2) - 1;
+            int[] PosNod = new int[2] { Aux.id, next };
+            Node<T> CreateNode = new Node<T>() { id = next, ParentNode = Aux.ParentNode, TamVal = SizeValores };
+            CreateNode.Valores = new T[Aux.Valores.Length];
+            CreateNode.Children = new int[Aux.Children.Length];
+            //Aqui va cuando supera la cantidad maxima
+            T[] ValoresMax = new T[grado];
+            for (int i = 0; i < grado - 1; i++)
+            {
+                ValoresMax[i] = Aux.Valores[i];
+            }
+            ValoresMax[grado - 1] = Valor;
+            for (int i = 0; i < grado - 1; i++)
+            {
+                for (int j = 0; j < grado - i - 1; j++)
+                {
+                    if (ValoresMax[j].CompareTo(ValoresMax[j + 1]) == 1)
+                    {
+                        //swap de valores dentro del nodo
+                        T temp = ValoresMax[j];
+                        ValoresMax[j] = ValoresMax[j + 1];
+                        ValoresMax[j + 1] = temp;
+                    }
+                }
+            }
+            //Save Values
+            int iterador = 0;
+            for (int j = 0; j < grado - 1; j++)
+            {
+                if (j < posMitad + 1) { Aux.Valores[j] = ValoresMax[j]; }
+                else { Aux.Valores[j] = default; }
+                if (j > posMitad)
+                {
+                    CreateNode.Valores[iterador] = ValoresMax[j + 1];
+                    iterador++;
+                }
+            }
+            //Save Children
+            iterador = 0;
+            for (int j = 0; j < grado; j++)
+            {
+                if (j > posMitad)
+                {
+                    CreateNode.Children[iterador] = Aux.Children[j];
+                    iterador++;
+                    Aux.Children[j] = 0;
+                }
+            }
+            T Medio = ValoresMax[grado / 2];
+
+            next++;
+            int idDad = 0;
+            if (Aux.ParentNode == 0)
+            {
+                idDad = CreateParent(PosNod, Medio);
+                Aux.ParentNode = idDad;
+                CreateNode.ParentNode = idDad;
+            }
+            else
+            {
+           //     idDad = CreateParent(PosNod, Medio);
+                Aux.ParentNode = idDad;
+                CreateNode.ParentNode = idDad;
+            }
+            //Guardar en disco el nodo actual
+            WriteNodeInDrive(Aux, Aux.id);
+            WriteNodeInDrive(CreateNode, CreateNode.id);
+            MoodNext();
+        }
+
+        int Subir Valor
+
+
+
+        int CreateParent(int[] Padres, T VMedio)
+        {
+            Node<T> CreateNode = new Node<T>() { id = next, ParentNode = 0, TamVal = SizeValores };
+            CreateNode.Valores = new T[grado-1];
+            CreateNode.Valores[0] = VMedio;
+            CreateNode.Children = new int[grado];
+            CreateNode.Children[0] = Padres[0];
+            CreateNode.Children[1] = Padres[1];
+            WriteNodeInDrive(CreateNode, CreateNode.id);
+            next++;
+            root = CreateNode.id;
+            MoodRoot();
+            MoodNext();
+            return CreateNode.id;
+        }
 
 
 
@@ -188,7 +305,19 @@ namespace Laboratorio2_ED2
                 file.Close();
             }
         }
-    
+        public void MoodNext()
+        {
+            using (FileStream file = new FileStream(DirectoryData, FileMode.Open))
+            {
+                using (StreamWriter escritor = new StreamWriter(file))
+                {
+                    file.Seek(data[1], SeekOrigin.Begin);
+
+                    escritor.WriteLine($"{next:000000;-00000}");
+                }
+                file.Close();
+            }
+        }
 
 
 

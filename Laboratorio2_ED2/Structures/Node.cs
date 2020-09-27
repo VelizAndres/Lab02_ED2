@@ -49,7 +49,7 @@ namespace Laboratorio2_ED2
         {
             for (int i = 0; i < usedSpace - 1; i++)
             {
-                for (int j = 0; j < usedSpace - i - 1; j++)
+                for (int j = 0; j < usedSpace - i ; j++)
                 {
                     if (Valores[j].CompareTo(Valores[j + 1]) == 1)
                     {
@@ -85,7 +85,7 @@ namespace Laboratorio2_ED2
         }
 
 
-        public void GetValues(string data, int grado, int SizeVal, Delegate Convert)
+        public void GetValues(string data, int grado, int SizeVal, Delegate Convert, Delegate Vacio)
         {
             TamVal = SizeVal;
             m = grado;
@@ -93,32 +93,39 @@ namespace Laboratorio2_ED2
             string[] contenedor = data.Split("|");
             string[] aux = new string[4];
             int pos = 0;
+            bool fail = true;
             for (int i = 0; i < aux.Length; i++)
             {
+                fail = true;
                 aux[i] = contenedor[pos];
                 while (aux[i].Length != tamData[i])
                 {
+                    pos++;
                     aux[i] += "|" + contenedor[pos];
+                    fail = false;
                 }
+                if (fail) { pos++;}
             }
             id = int.Parse(aux[0]);
             ParentNode = int.Parse(aux[1]);
+            Children = new int[m];
+            Valores = new T[m - 1];
             //Add Hijos
             string[] hijos = aux[2].Split("/");
             for(int j=0;j<m;j++)
             {
-                if (hijos[j] != "") { CantHijos++; };
+                if (int.Parse(hijos[j]) != 0 ) { CantHijos++; };
                 Children[j] = int.Parse(hijos[j]);
             }
             //Add Values
             string[] aux_val = aux[3].Split("/");
             int CapacityLef = m-1;
-            for (int k = 0; k < m; k++)
+            for (int k = 0; k < m-1; k++)
             {
-                if (aux_val[k].Trim() == "") { CapacityLef--; }
                 Valores[k] = (T)Convert.DynamicInvoke(aux_val[k].Trim());
+                if (Valores[k].CompareTo((T)Vacio.DynamicInvoke())==0) { CapacityLef--; }
             }
-            usedSpace = (m - 1) - CapacityLef;
+            usedSpace = CapacityLef;
         }
      
 

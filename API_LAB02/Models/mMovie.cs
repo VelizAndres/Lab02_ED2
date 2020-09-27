@@ -51,6 +51,8 @@ namespace API_LAB02.Models
 
 
 
+
+
         //Override To String, because the Tree is Generic
         public override string ToString()
         {
@@ -86,6 +88,9 @@ namespace API_LAB02.Models
                     };
                     return peli;
                 };
-   
+        public static Func<mMovie> Null = delegate ()
+         {
+             return new mMovie();
+         };
     }
 }
